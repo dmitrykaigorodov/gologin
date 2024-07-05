@@ -46,7 +46,7 @@ type LaunchParams =
     os: OsType
   }
 
-type LaunchFn = (params?: LaunchParams) => Promise<Browser>;
+type LaunchFn = (params?: LaunchParams) => Promise<{ browser: Browser, browserWSEndpoint: string }>;
 
 type GologinApiType = {
   launch: LaunchFn,

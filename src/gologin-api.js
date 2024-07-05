@@ -1,5 +1,5 @@
-import puppeteer from "puppeteer-core";
-import GoLogin from "./gologin.js";
+import puppeteer from 'puppeteer-core';
+import GoLogin from './gologin.js';
 
 export function getDefaultParams() {
   return {
@@ -21,13 +21,13 @@ export const delay = (ms = 500) => new Promise((res) => setTimeout(res, ms));
 
 export function GologinApi({ token }) {
   if (!token) {
-    throw new Error("GoLogin API token is missing");
+    throw new Error('GoLogin API token is missing');
   }
   let browsers = [];
   let legacyGls = [];
 
   const launchLocal = async (params) => {
-    console.log("launchExistingProfile", params);
+    console.log('launchExistingProfile', params);
     const legacyGologin = createLegacyGologin(params);
     const started = await legacyGologin.startLocal();
     const browserWSEndpoint = started.wsUrl;
@@ -42,13 +42,13 @@ export function GologinApi({ token }) {
   };
 
   const launchCloudProfile = async (params) => {
-    console.log("launchCloudProfile", params);
-    const profileParam = params.profile_id ?
-      `&profile=${params.profile_id}` :
-      "";
-    const geolocationParam = params.geolocation ?
-      `&geolocation=${params.geolocation}` :
-      "";
+    console.log('launchCloudProfile', params);
+    const profileParam = params.profile_id
+      ? `&profile=${params.profile_id}`
+      : '';
+    const geolocationParam = params.geolocation
+      ? `&geolocation=${params.geolocation}`
+      : '';
     const browserWSEndpoint = `https://cloud.gologin.com/connect?token=${token}${profileParam}${geolocationParam}`;
     const browser = await puppeteer.connect({
       browserWSEndpoint,
