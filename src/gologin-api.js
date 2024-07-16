@@ -38,9 +38,16 @@ export function GologinApi({ token }) {
   const legacyGls = [];
 
   const launchLocal = async (params) => {
+    let chromeArgs = params.chromeArgs || [];
+
+    if (params.headless) {
+      chromeArgs = chromeArgs.concat(['--headless', '--no-sandbox']);
+    }
+
     const legacyGologin = createLegacyGologin({
       ...params,
       token,
+      extra_params: chromeArgs
     });
 
     if (!params.profileId) {
@@ -80,15 +87,21 @@ export function GologinApi({ token }) {
     return { browser };
   };
 
+  const launch = async (params = {}) => {
+    if (params.cloud) {
+      return launchCloudProfile(params);
+    }
+
+    return launchLocal(params);
+  };
+
+  const page = async (params = {}) => {
+
+  };
+
   const api = {
-    async launch(params = {}) {
-      if (params.cloud) {
-        return launchCloudProfile(params);
-      }
-
-      return launchLocal(params);
-    },
-
+    launch,
+    page,
     async exit(status = 0) {
       Promise.allSettled(browsers.map((browser) => browser.close()));
       Promise.allSettled(
