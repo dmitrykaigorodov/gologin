@@ -29,7 +29,7 @@ const createdApis = [];
 
 export const delay = (ms = 250) => new Promise((res) => setTimeout(res, ms));
 
-export function GologinApi({ token }) {
+export function GologinApi({ token, debug = false }) {
   if (!token) {
     throw new Error('GoLogin API token is missing');
   }
@@ -108,6 +108,11 @@ export function GologinApi({ token }) {
         legacyGls.map((gl) => gl.stopLocal({ posting: false })),
       );
       process.exit(status);
+    },
+    debug(...args) {
+      if (debug) {
+        console.debug(...args)
+      }
     },
 
     delay,

@@ -8,13 +8,60 @@ export const OPERATING_SYSTEMS = {
 } as const;
 export type OsType = (typeof OPERATING_SYSTEMS)[keyof typeof OPERATING_SYSTEMS];
 
+/**
+ * ISO-3166 based proxy location country codes
+ */
+const PROVIDED_PROXIES = {
+  /** Australia */
+  AU: "dataCenter:AU",
+  /** Argentina */
+  AR: "dataCenter:AR",
+  /** Brazil */
+  BR: "dataCenter:BR",
+  /** Canada */
+  CA: "dataCenter:CA",
+  /** China */
+  CN: "dataCenter:CN",
+  /** France */
+  FR: "dataCenter:FR",
+  /** Germany, aka  Deutchland */
+  DE: "dataCenter:DE",
+  /** India */
+  IN: "dataCenter:IN",
+  /** Israel */
+  IS: "dataCenter:IS",
+  /** Italy */
+  IT: "dataCenter:IT",
+  /** Indonesia */
+  ID: "dataCenter:ID",
+  /** Netherland */
+  NL: "dataCenter:NL",
+  /** New Zeland */
+  NZ: "dataCenter:NZ",
+  /** Poland */
+  PL: "dataCenter:PL",
+  /** Pakistan */
+  PK: "dataCenter:PK",
+  /** Spain aka Espana*/
+  ES: "dataCenter:ES",
+  /** Sweden */
+  SE: "dataCenter:SE",
+  /** United Kingdom, aka Great Britain */
+  GB: "dataCenter:GB",
+  /** United States */
+  US: "dataCenter:US",
+  /** Ukraine */
+  UA: "dataCenter:UA",
+} as const;
+export type ProvidedProxyType = (typeof PROVIDED_PROXIES)[keyof typeof PROVIDED_PROXIES];
+
 type CloudLaunchParams = {
   cloud: true;
 
   /**
    * Format: 'dataCenter:DE'
    */
-  geolocation?: string;
+  geolocation?: ProvidedProxyType;
 };
 type LocalLaunchParams = {
   cloud: false;
@@ -55,6 +102,10 @@ type GologinApiType = {
 
 type GologinApiParams = {
   token: string;
+  /**
+   * enable debug logging to console.debug
+   */
+  debug?: boolean;
 };
 
 export declare function GologinApi(params: GologinApiParams): GologinApiType;
