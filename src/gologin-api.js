@@ -1,6 +1,8 @@
 import puppeteer from 'puppeteer-core';
 
+import { updateProfileProxy } from './browser/browser-api.js';
 import GoLogin from './gologin.js';
+import { API_URL } from './utils/common.js';
 
 export function getDefaultParams() {
   return {
@@ -11,16 +13,14 @@ export function getDefaultParams() {
   };
 }
 
-const createLegacyGologin = ({ profileId, ...params }) => {
+const createLegacyGologin = ({ token, profileId, profile_id, ...params }) => {
   const defaults = getDefaultParams();
   const mergedParams = {
     ...defaults,
     ...params,
+    token,
+    profile_id: profileId || profile_id || defaults.profile_id
   };
-
-  mergedParams.profile_id = profileId ?? mergedParams.profile_id;
-
-  console.log({ mergedParams });
 
   return new GoLogin(mergedParams);
 };
@@ -29,13 +29,74 @@ const createdApis = [];
 
 export const delay = (ms = 250) => new Promise((res) => setTimeout(res, ms));
 
-export function GologinApi({ token, debug = false }) {
+export function GologinApi({ token, debug: isDebugEnabled }) {
   if (!token) {
     throw new Error('GoLogin API token is missing');
   }
 
+  const debug = isDebugEnabled ? console.debug : () => { };
+
   const browsers = [];
   const legacyGls = [];
+
+  const httpApi = async (uri, {
+    method = "POST",
+    json
+  }) => {
+    const response = await fetch(`${API_URL}${uri}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'user-agent': 'gologin-api',
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify(json)
+    });
+    if (response.status >= 400) {
+      console.error(await response.text())
+      throw new Error(response.statusText);
+    }
+    return await response.json();
+  }
+
+  const getGeoProxy = async (countryCode = "DE") => {
+    return await httpApi("/users-proxies/mobile-proxy", {
+      json: {
+        countryCode,
+        "browserId": "",
+        "isMobile": false,
+        "isDC": false
+      }
+    })
+  }
+
+  const createOrGetProfile = async (params) => {
+    if (params?.profileId) {
+      debug("Using existing profile", params.profileId);
+      return params.profileId
+    }
+
+    const legacyGologin = createLegacyGologin({ token })
+
+    const { id: profileId } = await legacyGologin.quickCreateProfile();
+
+    if (params?.proxy?.countryCode) {
+      const countryCode = params.proxy.countryCode;
+      const proxy = await getGeoProxy(countryCode);
+      debug("Creating profile using provided proxy", {
+        countryCode,
+        proxy,
+      });
+      await updateProfileProxy(profileId, token, proxy);
+    } else if (params?.proxy) {
+      debug("Creating profile based on custom proxy", {
+        proxy: params.proxy,
+      });
+      await updateProfileProxy(profileId, token, proxy);
+    }
+
+    return profileId;
+  }
 
   const launchLocal = async (params) => {
     let chromeArgs = params.chromeArgs || [];
@@ -44,16 +105,14 @@ export function GologinApi({ token, debug = false }) {
       chromeArgs = chromeArgs.concat(['--headless', '--no-sandbox']);
     }
 
+    const profileId = await createOrGetProfile(params);
+
     const legacyGologin = createLegacyGologin({
       ...params,
       token,
+      profileId,
       extra_params: chromeArgs
     });
-
-    if (!params.profileId) {
-      const { id } = await legacyGologin.quickCreateProfile();
-      await legacyGologin.setProfileId(id);
-    }
 
     const started = await legacyGologin.start();
     const browser = await puppeteer.connect({
@@ -72,8 +131,8 @@ export function GologinApi({ token, debug = false }) {
       ? `&profile=${params.profileId}`
       : '';
 
-    const geolocationParam = params.geolocation
-      ? `&geolocation=${params.geolocation}`
+    const geolocationParam = params?.proxy?.countryCode
+      ? `&geolocation=dataCenter:${params?.proxy?.countryCode}`
       : '';
 
     const browserWSEndpoint = `https://cloud.gologin.com/connect?token=${token}${profileParam}${geolocationParam}`;
@@ -109,12 +168,8 @@ export function GologinApi({ token, debug = false }) {
       );
       process.exit(status);
     },
-    debug(...args) {
-      if (debug) {
-        console.debug(...args)
-      }
-    },
 
+    debug,
     delay,
   };
 
