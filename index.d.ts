@@ -13,47 +13,48 @@ export type OsType = (typeof OPERATING_SYSTEMS)[keyof typeof OPERATING_SYSTEMS];
  */
 const PROVIDED_PROXIES = {
   /** Australia */
-  AU: "dataCenter:AU",
+  AU: 'dataCenter:AU',
   /** Argentina */
-  AR: "dataCenter:AR",
+  AR: 'dataCenter:AR',
   /** Brazil */
-  BR: "dataCenter:BR",
+  BR: 'dataCenter:BR',
   /** Canada */
-  CA: "dataCenter:CA",
+  CA: 'dataCenter:CA',
   /** China */
-  CN: "dataCenter:CN",
+  CN: 'dataCenter:CN',
   /** France */
-  FR: "dataCenter:FR",
+  FR: 'dataCenter:FR',
   /** Germany, aka  Deutchland */
-  DE: "dataCenter:DE",
+  DE: 'dataCenter:DE',
   /** India */
-  IN: "dataCenter:IN",
+  IN: 'dataCenter:IN',
   /** Israel */
-  IS: "dataCenter:IS",
+  IS: 'dataCenter:IS',
   /** Italy */
-  IT: "dataCenter:IT",
+  IT: 'dataCenter:IT',
   /** Indonesia */
-  ID: "dataCenter:ID",
+  ID: 'dataCenter:ID',
   /** Netherland */
-  NL: "dataCenter:NL",
+  NL: 'dataCenter:NL',
   /** New Zeland */
-  NZ: "dataCenter:NZ",
+  NZ: 'dataCenter:NZ',
   /** Poland */
-  PL: "dataCenter:PL",
+  PL: 'dataCenter:PL',
   /** Pakistan */
-  PK: "dataCenter:PK",
+  PK: 'dataCenter:PK',
   /** Spain aka Espana*/
-  ES: "dataCenter:ES",
+  ES: 'dataCenter:ES',
   /** Sweden */
-  SE: "dataCenter:SE",
+  SE: 'dataCenter:SE',
   /** United Kingdom, aka Great Britain */
-  GB: "dataCenter:GB",
+  GB: 'dataCenter:GB',
   /** United States */
-  US: "dataCenter:US",
+  US: 'dataCenter:US',
   /** Ukraine */
-  UA: "dataCenter:UA",
+  UA: 'dataCenter:UA',
 } as const;
-export type ProvidedProxyType = (typeof PROVIDED_PROXIES)[keyof typeof PROVIDED_PROXIES];
+export type ProvidedProxyType =
+  (typeof PROVIDED_PROXIES)[keyof typeof PROVIDED_PROXIES];
 
 type CloudLaunchParams = {
   cloud: true;
@@ -81,16 +82,16 @@ type LaunchParams =
   | ExistingProfileLaunchParams
   | NewProfileLaunchParams
   | {
-    /**
-     * default delay, 250
-     */
-    defaultDelay: number;
+      /**
+       * default delay, 250
+       */
+      defaultDelay: number;
 
-    /**
-     * Operating system
-     */
-    os: OsType;
-  };
+      /**
+       * Operating system
+       */
+      os: OsType;
+    };
 
 type LaunchFn = (params?: LaunchParams) => Promise<{ browser: Browser }>;
 

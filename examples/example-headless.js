@@ -13,18 +13,18 @@ async function main() {
   const prematureStatus = await page.$eval('.title>.title:not(.hide)', (elt) =>
     elt?.innerText?.trim(),
   );
-  gologin.debug({ prematureStatus })
-  gologin.debug(innerHTML)
+  gologin.debug({ prematureStatus });
+  gologin.debug(innerHTML);
 
   await gologin.delay(5000);
   await page.screenshot({ path: 'headless-6sec.jpg', fullPage: true });
   innerHTML = await page.$eval('.title-block', (elt) => elt.innerHTML);
-  gologin.debug(innerHTML)
+  gologin.debug(innerHTML);
 
   const status = await page.$eval('.title>.title:not(.hide)', (elt) =>
     elt?.innerText?.trim(),
   );
-  gologin.debug({ status })
+  gologin.debug({ status });
 
   return status; // Expecting 'Trustworthy'
 }

@@ -19,7 +19,7 @@ const createLegacyGologin = ({ token, profileId, profile_id, ...params }) => {
     ...defaults,
     ...params,
     token,
-    profile_id: profileId || profile_id || defaults.profile_id
+    profile_id: profileId || profile_id || defaults.profile_id,
   };
 
   return new GoLogin(mergedParams);
@@ -34,69 +34,66 @@ export function GologinApi({ token, debug: isDebugEnabled }) {
     throw new Error('GoLogin API token is missing');
   }
 
-  const debug = isDebugEnabled ? console.debug : () => { };
+  const debug = isDebugEnabled ? console.debug : () => {};
 
   const browsers = [];
   const legacyGls = [];
 
-  const httpApi = async (uri, {
-    method = "POST",
-    json
-  }) => {
+  const httpApi = async (uri, { method = 'POST', json }) => {
     const response = await fetch(`${API_URL}${uri}`, {
       method,
       headers: {
         Authorization: `Bearer ${token}`,
         'user-agent': 'gologin-api',
-        'Content-Type': 'application/json; charset=utf-8'
+        'Content-Type': 'application/json; charset=utf-8',
       },
-      body: JSON.stringify(json)
+      body: JSON.stringify(json),
     });
     if (response.status >= 400) {
-      console.error(await response.text())
+      console.error(await response.text());
       throw new Error(response.statusText);
     }
     return await response.json();
-  }
+  };
 
-  const getGeoProxy = async (countryCode = "DE") => {
-    return await httpApi("/users-proxies/mobile-proxy", {
+  const getGeoProxy = async (countryCode = 'DE') => {
+    return await httpApi('/users-proxies/mobile-proxy', {
       json: {
         countryCode,
-        "browserId": "",
-        "isMobile": false,
-        "isDC": false
-      }
-    })
-  }
+        browserId: '',
+        isMobile: false,
+        isDC: false,
+      },
+    });
+  };
 
   const createOrGetProfile = async (params) => {
     if (params?.profileId) {
-      debug("Using existing profile", params.profileId);
-      return params.profileId
+      debug('Using existing profile', params.profileId);
+      return params.profileId;
     }
 
-    const legacyGologin = createLegacyGologin({ token })
+    const legacyGologin = createLegacyGologin({ token });
 
     const { id: profileId } = await legacyGologin.quickCreateProfile();
 
     if (params?.proxy?.countryCode) {
       const countryCode = params.proxy.countryCode;
       const proxy = await getGeoProxy(countryCode);
-      debug("Creating profile using provided proxy", {
+      debug('Creating profile using provided proxy', {
         countryCode,
         proxy,
       });
       await updateProfileProxy(profileId, token, proxy);
     } else if (params?.proxy) {
-      debug("Creating profile based on custom proxy", {
+      debug('Creating profile based on custom proxy', {
         proxy: params.proxy,
       });
       await updateProfileProxy(profileId, token, proxy);
     }
 
     return profileId;
-  }
+  };
 
   const launchLocal = async (params) => {
     let chromeArgs = params.chromeArgs || [];
@@ -111,7 +108,7 @@ export function GologinApi({ token, debug: isDebugEnabled }) {
       ...params,
       token,
       profileId,
-      extra_params: chromeArgs
+      extra_params: chromeArgs,
     });
 
     const started = await legacyGologin.start();
@@ -127,9 +124,7 @@ export function GologinApi({ token, debug: isDebugEnabled }) {
   };
 
   const launchCloudProfile = async (params) => {
-    const profileParam = params.profileId
-      ? `&profile=${params.profileId}`
-      : '';
+    const profileParam = params.profileId ? `&profile=${params.profileId}` : '';
 
     const geolocationParam = params?.proxy?.countryCode
       ? `&geolocation=dataCenter:${params?.proxy?.countryCode}`
@@ -154,9 +149,7 @@ export function GologinApi({ token, debug: isDebugEnabled }) {
     return launchLocal(params);
   };
 
-  const page = async (params = {}) => {
-
-  };
+  const page = async (params = {}) => {};
 
   const api = {
     launch,

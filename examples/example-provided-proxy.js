@@ -4,7 +4,7 @@ const token = process.env.GOLOGIN_API_TOKEN; // get token https://app.gologin.co
 const gologin = GologinApi({ token, debug: true });
 
 async function main() {
-  const { browser } = await gologin.launch({ proxy: { countryCode: "DE" } });
+  const { browser } = await gologin.launch({ proxy: { countryCode: 'DE' } });
   const page = await browser.newPage();
   await page.goto('https://iphey.com/', { waitUntil: 'networkidle2' });
   const status = await page.$eval('.trustworthy-status:not(.hide)', (elt) =>
