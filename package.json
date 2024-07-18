@@ -30,6 +30,9 @@
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2"
   },
+  "prettier": {
+    "singleQuote": true
+  },
   "bugs": {
     "url": "https://github.com/gologinapp/gologin/issues"
   },
@@ -43,7 +46,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "npx prettier --write --single-quote * ",
+    "format": "npx prettier --write \"**/*.{js,ts}\" ",
     "iphey": "GOLOGIN_PROFILE_ID= GOLOGIN_API_TOKEN= node examples/example-iphey "
   }
 }
